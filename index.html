@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Yearly Rota - Filled In</title>
+<style>
+:root{
+  --bg:#f5f7fb; --panel:#ffffff; --text:#172033; --muted:#667085;
+  --accent:#3b82f6; --accent2:#e8f1ff; --weekend:#fff4df; --today:#e8fff0;
+  --border:#dfe5ee; --shadow:0 8px 24px rgba(23,32,51,.08);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
+header{background:#172033;color:#fff;padding:22px 18px}
+header h1{margin:0;font-size:28px}
+header p{margin:6px 0 0;color:#d7deea}
+.wrap{max-width:1180px;margin:0 auto;padding:18px}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:16px;margin-bottom:16px}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+button,.filelabel{
+  border:0;border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer;
+  background:var(--accent);color:#fff
+}
+button.secondary,.filelabel.secondary{background:#eef2f7;color:#24324a}
+button.danger{background:#d92d20}
+input[type=file]{display:none}
+textarea{
+  width:100%;min-height:150px;margin-top:12px;border:1px solid var(--border);border-radius:10px;
+  padding:12px;font:14px/1.45 Consolas,monospace;resize:vertical
+}
+.hint{font-size:13px;color:var(--muted);margin-top:8px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:13px}
+.dot{display:inline-block;width:13px;height:13px;border-radius:3px;vertical-align:-2px;margin-right:5px;border:1px solid #d3d8df}
+.yearToolbar{
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  margin-bottom:16px;flex-wrap:wrap
+}
+.yearToolbar button{min-width:44px}
+.yearTitle{font-size:26px;font-weight:800;min-width:130px;text-align:center}
+.yearStats{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+.badge{padding:5px 9px;border-radius:999px;background:#f2f4f7;color:#475467;font-size:13px}
+.yearView{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.monthMini{
+  background:#fff;border:1px solid var(--border);border-radius:14px;
+  box-shadow:var(--shadow);overflow:hidden
+}
+.monthMiniHead{
+  padding:10px 12px;background:#eef4ff;border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;gap:8px
+}
+.monthMiniHead h2{margin:0;font-size:17px}
+.monthCount{font-size:11px;color:#667085}
+.miniCalendar{display:grid;grid-template-columns:repeat(7,1fr)}
+.miniWeekday{
+  padding:6px 2px;text-align:center;font-weight:700;font-size:10px;
+  background:#f8fafc;border-bottom:1px solid var(--border);color:#667085
+}
+.miniDay{
+  min-height:64px;padding:4px;border-right:1px solid #eef1f5;border-bottom:1px solid #eef1f5;
+  overflow:hidden
+}
+.miniDay:nth-child(7n){border-right:0}
+.miniDay.weekend{background:var(--weekend)}
+.miniDay.today{background:var(--today);box-shadow:inset 3px 0 0 #22c55e}
+.miniDay.othermonth{background:#fafafa;color:#c4c9d2}
+.daynum{font-weight:700;font-size:10px;line-height:1}
+.miniShift{
+  margin-top:3px;padding:2px 3px;border-radius:4px;background:var(--accent2);
+  border-left:2px solid var(--accent);font-size:8.5px;line-height:1.2;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.miniShift.holiday{
+  background:#e9fbe9;border-left-color:#16a34a;font-weight:700
+}
+.moreShifts{
+  margin-top:2px;font-size:8px;color:#667085;font-weight:600
+}
+.emptyState{text-align:center;padding:50px 20px;color:#667085}
+@media(max-width:1000px){
+  .yearView{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:650px){
+  .yearView{grid-template-columns:1fr}
+  .miniDay{min-height:72px}
+}
+@media print{
+  header,.panel,.yearToolbar{display:none!important}
+  body{background:#fff}
+  .wrap{max-width:none;padding:0}
+  .yearStats{margin:0 0 8px}
+  .yearView{grid-template-columns:repeat(3,1fr);gap:7px}
+  .monthMini{box-shadow:none;break-inside:avoid}
+  .miniDay{min-height:48px}
+  .miniShift{font-size:7px}
+}
+
+.weeklyOverview{margin-bottom:18px}
+.weeklyOverviewTitle{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  margin:0 0 10px;flex-wrap:wrap
+}
+.weeklyOverviewTitle h2{margin:0;font-size:20px}
+.weekCards{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px
+}
+.weekCard{
+  background:linear-gradient(135deg,#2bb7d4,#1690b8);
+  color:#fff;border-radius:18px;padding:15px 16px;
+  box-shadow:0 8px 22px rgba(23,32,51,.12)
+}
+.weekCardHead{
+  display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px
+}
+.weekLabel{font-weight:800;font-size:15px}
+.weekDates{font-size:11px;opacity:.9;text-align:right}
+.weekDays{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;text-align:center}
+.weekDayLetter{font-size:13px;font-weight:700;margin-bottom:5px}
+.weekCircle{
+  width:32px;height:32px;border-radius:50%;margin:0 auto 4px;
+  display:flex;align-items:center;justify-content:center;
+  border:3px solid rgba(255,255,255,.35);
+  font-size:11px;font-weight:800
+}
+.weekCircle.work{border-color:#fff;background:rgba(255,255,255,.12)}
+.weekCircle.holiday{border-color:#b8ffbf;background:#198f46;color:#fff}
+.weekCircle.off{border-color:rgba(255,255,255,.22);color:rgba(255,255,255,.55)}
+.weekCircle.today{box-shadow:0 0 0 3px rgba(255,255,255,.35)}
+.weekDayInfo{
+  min-height:28px;font-size:9px;line-height:1.2;opacity:.95;
+  overflow:hidden
+}
+.weekDayInfo strong{display:block;font-size:9px}
+.weekLegend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:#667085}
+.legendDot{
+  display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px
+}
+
+
+.miniDay.clickable{cursor:pointer;transition:transform .12s ease,box-shadow .12s ease}
+.miniDay.clickable:hover{transform:translateY(-1px);box-shadow:inset 0 0 0 2px rgba(59,130,246,.35)}
+.dayModal{
+  position:fixed;inset:0;background:rgba(15,23,42,.55);
+  display:none;align-items:center;justify-content:center;
+  padding:20px;z-index:9999
+}
+.dayModal.open{display:flex}
+.dayModalCard{
+  width:min(520px,96vw);max-height:85vh;overflow:auto;
+  background:#fff;border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.25)
+}
+.dayModalHead{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding:16px 18px;border-bottom:1px solid var(--border);background:#eef4ff
+}
+.dayModalHead h3{margin:0;font-size:20px}
+.dayModalClose{
+  background:#eef2f7;color:#24324a;border:0;border-radius:10px;
+  width:38px;height:38px;padding:0;font-size:20px;cursor:pointer
+}
+.dayModalBody{padding:16px 18px}
+.detailItem{
+  border:1px solid var(--border);border-radius:12px;padding:12px 13px;margin-bottom:10px;
+  background:#fff
+}
+.detailItem.holiday{background:#effcf1;border-left:5px solid #16a34a}
+.detailItem.work{background:#f4f8ff;border-left:5px solid #3b82f6}
+.detailTitle{font-weight:800;margin-bottom:6px}
+.detailGrid{display:grid;grid-template-columns:110px 1fr;gap:5px 10px;font-size:14px}
+.detailGrid .label{color:#667085}
+.noDetails{color:#667085;font-style:italic}
+
+</style>
+
+<meta name="theme-color" content="#172033">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Rota Final">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+</head>
+<body>
+<header>
+  <div class="wrap" style="padding:0">
+    <h1>Rota Final</h1>
+    <p>See your shifts week by week and across the whole year. Click any day for full shift details.</p>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="panel">
+    <div class="controls">
+      <label class="filelabel" for="csvFile">Import CSV</label>
+      <input id="csvFile" type="file" accept=".csv,text/csv">
+      <button onclick="loadExample()" class="secondary">Load My Rota</button>
+      <button onclick="parseText()">Update Rota</button>
+      <button onclick="window.print()" class="secondary">Print / Save PDF</button>
+      <button onclick="downloadCSV()" class="secondary">Export CSV</button>
+      <button onclick="clearAll()" class="danger">Clear</button>
+    </div>
+
+    <textarea id="rotaInput" placeholder="Paste your rota here, one shift per line.
+
+Accepted format:
+Date, Start, End, Role, Location, Notes
+
+Example:
+2026-09-28, 08:00, 16:00, Support, Main Site, Early shift
+2026-09-30, 12:00, 20:00, Support, Main Site, Late shift"></textarea>
+    <div class="hint">
+      Best date format: YYYY-MM-DD. You can also use DD/MM/YYYY. Role, location and notes are optional.
+      Your rota is saved only in this browser on this PC.
+    </div>
+    <div class="legend">
+      <span><span class="dot" style="background:#e8fff0"></span>Today</span>
+      <span><span class="dot" style="background:#fff4df"></span>Weekend</span>
+      <span><span class="dot" style="background:#e8f1ff"></span>Work shift</span>
+    </div>
+  </div>
+
+  <div class="weeklyOverview">
+    <div class="weeklyOverviewTitle">
+      <h2>Weekly Shift View</h2>
+      <div class="weekLegend">
+        <span><span class="legendDot" style="background:#1690b8;border:2px solid #fff"></span>Work</span>
+        <span><span class="legendDot" style="background:#198f46"></span>Holiday</span>
+        <span><span class="legendDot" style="background:#cfd6df"></span>Off / no shift</span>
+      </div>
+    </div>
+    <div id="weekCards" class="weekCards"></div>
+  </div>
+  <div class="yearToolbar">
+    <button class="secondary" onclick="changeYear(-1)">◀ Previous</button>
+    <div id="yearTitle" class="yearTitle"></div>
+    <button class="secondary" onclick="changeYear(1)">Next ▶</button>
+    <button class="secondary" onclick="goToRotaYear()">Rota Year</button>
+    <button class="secondary" onclick="goToCurrentYear()">This Year</button>
+  </div>
+  <div id="yearStats" class="yearStats"></div>
+  <div id="yearView" class="yearView"></div>
+</div>
+
+<script>
+const input = document.getElementById('rotaInput');
+const yearViewEl = document.getElementById('yearView');
+const weekCardsEl = document.getElementById('weekCards');
+let shifts = [];
+
+function pad(n){return String(n).padStart(2,'0')}
+function localISO(d){return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`}
+
+function parseDate(s){
+  s=(s||'').trim();
+  if(!s) return null;
+  let m;
+  if((m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/))){
+    return new Date(Number(m[1]),Number(m[2])-1,Number(m[3]));
+  }
+  if((m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/))){
+    return new Date(Number(m[3]),Number(m[2])-1,Number(m[1]));
+  }
+  let d=new Date(s);
+  return isNaN(d)?null:d;
+}
+
+function splitCSVLine(line){
+  const out=[]; let cur=''; let q=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(c==='"'){
+      if(q && line[i+1]==='"'){cur+='"';i++}
+      else q=!q;
+    }else if(c===',' && !q){out.push(cur.trim());cur=''}
+    else cur+=c;
+  }
+  out.push(cur.trim());
+  return out;
+}
+
+function parseText(){
+  const lines=input.value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  shifts=[];
+  for(const line of lines){
+    const p=splitCSVLine(line);
+    if(!p.length) continue;
+    if((p[0]||'').toLowerCase()==='date') continue;
+    const d=parseDate(p[0]);
+    if(!d) continue;
+    shifts.push({
+      date:localISO(d),
+      start:(p[1]||'').trim(),
+      end:(p[2]||'').trim(),
+      role:(p[3]||'').trim(),
+      location:(p[4]||'').trim(),
+      notes:(p[5]||'').trim()
+    });
+  }
+  shifts.sort((a,b)=>a.date.localeCompare(b.date)||a.start.localeCompare(b.start));
+  localStorage.setItem('yearlyRotaText',input.value);
+  if(shifts.length) displayYear=parseDate(shifts[0].date).getFullYear();
+  render();
+}
+
+function mondayOf(date){
+  const d=new Date(date.getFullYear(),date.getMonth(),date.getDate());
+  const day=(d.getDay()+6)%7;
+  d.setDate(d.getDate()-day);
+  return d;
+}
+
+function fmtDate(d,opts){return d.toLocaleDateString(undefined,opts)}
+function escapeHtml(s){
+  return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+}
+
+let displayYear = new Date().getFullYear();
+
+function changeYear(delta){
+  displayYear += delta;
+  render();
+}
+function goToCurrentYear(){
+  displayYear = new Date().getFullYear();
+  render();
+}
+function goToRotaYear(){
+  if(shifts.length){
+    displayYear = parseDate(shifts[0].date).getFullYear();
+    render();
+  }
+}
+
+
+function mondayStart(date){
+  const d=new Date(date.getFullYear(),date.getMonth(),date.getDate());
+  const day=(d.getDay()+6)%7;
+  d.setDate(d.getDate()-day);
+  return d;
+}
+
+function renderWeekCards(yearShifts){
+  const today=localISO(new Date());
+  const weekMap={};
+
+  yearShifts.forEach(s=>{
+    const d=parseDate(s.date);
+    const mon=mondayStart(d);
+    const key=localISO(mon);
+    if(!weekMap[key]) weekMap[key]=[];
+    weekMap[key].push(s);
+  });
+
+  const keys=Object.keys(weekMap).sort();
+  if(!keys.length){
+    weekCardsEl.innerHTML='<div class="emptyState panel">No weekly shifts for this year.</div>';
+    return;
+  }
+
+  let html='';
+  keys.forEach((key,idx)=>{
+    const mon=parseDate(key);
+    const sun=new Date(mon); sun.setDate(sun.getDate()+6);
+    const items=weekMap[key];
+
+    html+=`<section class="weekCard">
+      <div class="weekCardHead">
+        <div class="weekLabel">Week ${idx+1}</div>
+        <div class="weekDates">${mon.toLocaleDateString(undefined,{day:'numeric',month:'short'})} – ${sun.toLocaleDateString(undefined,{day:'numeric',month:'short'})}</div>
+      </div>
+      <div class="weekDays">`;
+
+    const letters=['M','T','W','T','F','S','S'];
+
+    for(let i=0;i<7;i++){
+      const d=new Date(mon); d.setDate(d.getDate()+i);
+      const iso=localISO(d);
+      const dayItems=items.filter(s=>s.date===iso);
+      const holiday=dayItems.some(s=>(s.role||'').toLowerCase().includes('holiday'));
+      const working=dayItems.some(s=>!(s.role||'').toLowerCase().includes('holiday'));
+      const status=holiday?'holiday':(working?'work':'off');
+      const isToday=iso===today;
+
+      let info='Off';
+      if(holiday){
+        const h=dayItems.find(s=>(s.role||'').toLowerCase().includes('holiday'));
+        info='Holiday';
+        if(h && h.notes) info += '<strong>'+escapeHtml(h.notes.replace('Authorised hours: ','')+'h')+'</strong>';
+      } else if(working){
+        const w=dayItems.find(s=>!(s.role||'').toLowerCase().includes('holiday'));
+        if(w.start && w.end){
+          info='Work<strong>'+escapeHtml(w.start+'–'+w.end)+'</strong>';
+        }else{
+          const hm=(w.notes||'').match(/(\d+(?:\.\d+)?)\s*hours?/i);
+          info='Work<strong>'+escapeHtml(hm?hm[1]+'h':(w.role||'Shift'))+'</strong>';
+        }
+      }
+
+      html+=`<div onclick="openDayModal('${iso}')" style="cursor:pointer">
+        <div class="weekDayLetter">${letters[i]}</div>
+        <div class="weekCircle ${status} ${isToday?'today':''}">${d.getDate()}</div>
+        <div class="weekDayInfo">${info}</div>
+      </div>`;
+    }
+
+    html+='</div></section>';
+  });
+
+  weekCardsEl.innerHTML=html;
+}
+
+
+function formatLongDate(iso){
+  const d=parseDate(iso);
+  return d.toLocaleDateString(undefined,{
+    weekday:'long',day:'numeric',month:'long',year:'numeric'
+  });
+}
+
+function openDayModal(iso){
+  const modal=document.getElementById('dayModal');
+  const title=document.getElementById('dayModalTitle');
+  const body=document.getElementById('dayModalBody');
+
+  const items=shifts.filter(s=>s.date===iso);
+  title.textContent=formatLongDate(iso);
+
+  if(!items.length){
+    body.innerHTML='<div class="noDetails">No shift or holiday is recorded for this day.</div>';
+  } else {
+    let html='';
+    items.forEach(s=>{
+      const isHoliday=(s.role||'').toLowerCase().includes('holiday');
+      const type=isHoliday?'holiday':'work';
+      const heading=isHoliday?'Holiday':'Work shift';
+
+      let duration='';
+      const a=(s.start||'').match(/^(\d{1,2}):(\d{2})$/);
+      const b=(s.end||'').match(/^(\d{1,2}):(\d{2})$/);
+      if(a&&b){
+        let mins=(+b[1]*60 + +b[2])-(+a[1]*60 + +a[2]);
+        if(mins<0) mins+=24*60;
+        duration=`${Math.floor(mins/60)}h ${mins%60?mins%60+'m':''}`.trim();
+      } else {
+        const hm=(s.notes||'').match(/(\d+(?:\.\d+)?)\s*hours?/i);
+        if(hm) duration=hm[1]+' hours';
+      }
+
+      html+=`<div class="detailItem ${type}">
+        <div class="detailTitle">${heading}</div>
+        <div class="detailGrid">
+          ${s.start||s.end?`<div class="label">Time</div><div>${escapeHtml(s.start||'')} ${s.end?'– '+escapeHtml(s.end):''}</div>`:''}
+          ${duration?`<div class="label">Hours</div><div>${escapeHtml(duration)}</div>`:''}
+          ${s.role?`<div class="label">Role</div><div>${escapeHtml(s.role)}</div>`:''}
+          ${s.location?`<div class="label">Location</div><div>${escapeHtml(s.location)}</div>`:''}
+          ${s.notes?`<div class="label">Notes</div><div>${escapeHtml(s.notes)}</div>`:''}
+        </div>
+      </div>`;
+    });
+    body.innerHTML=html;
+  }
+
+  modal.classList.add('open');
+}
+
+function closeDayModal(){
+  document.getElementById('dayModal').classList.remove('open');
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') closeDayModal();
+});
+
+function render(){
+  const titleEl=document.getElementById('yearTitle');
+  const statsEl=document.getElementById('yearStats');
+  titleEl.textContent=displayYear;
+
+  if(!shifts.length){
+    statsEl.innerHTML='';
+    weekCardsEl.innerHTML='';
+    yearViewEl.innerHTML='<div class="emptyState panel">No shifts loaded yet. Paste your rota above or import a CSV file.</div>';
+    return;
+  }
+
+  const yearShifts=shifts.filter(s=>parseDate(s.date).getFullYear()===displayYear);
+  const today=localISO(new Date());
+  const weekdays=['M','T','W','T','F','S','S'];
+
+  renderWeekCards(yearShifts);
+
+  let totalMins=0;
+  yearShifts.forEach(s=>{
+    const a=(s.start||'').match(/^(\d{1,2}):(\d{2})$/);
+    const b=(s.end||'').match(/^(\d{1,2}):(\d{2})$/);
+    if(a&&b){
+      let mins=(+b[1]*60 + +b[2])-(+a[1]*60 + +a[2]);
+      if(mins<0) mins+=24*60;
+      totalMins+=mins;
+    } else {
+      const h=(s.notes||'').match(/(\d+(?:\.\d+)?)\s*hours?/i);
+      if(h && !(s.role||'').toLowerCase().includes('holiday')){
+        totalMins += Math.round(parseFloat(h[1])*60);
+      }
+    }
+  });
+
+  const workedDays=new Set(yearShifts.map(s=>s.date)).size;
+  statsEl.innerHTML=`
+    <span class="badge">${yearShifts.length} shift${yearShifts.length===1?'':'s'}</span>
+    <span class="badge">${workedDays} working day${workedDays===1?'':'s'}</span>
+    ${totalMins?`<span class="badge">${Math.floor(totalMins/60)}h ${totalMins%60}m</span>`:''}
+  `;
+
+  let html='';
+
+  for(let monthIndex=0;monthIndex<12;monthIndex++){
+    const monthStart=new Date(displayYear,monthIndex,1);
+    const monthEnd=new Date(displayYear,monthIndex+1,0);
+    const monthShifts=yearShifts.filter(s=>parseDate(s.date).getMonth()===monthIndex);
+
+    html+=`<section class="monthMini">
+      <div class="monthMiniHead">
+        <h2>${monthStart.toLocaleDateString(undefined,{month:'long'})}</h2>
+        <span class="monthCount">${monthShifts.length} shift${monthShifts.length===1?'':'s'}</span>
+      </div>
+      <div class="miniCalendar">`;
+
+    weekdays.forEach(w=>html+=`<div class="miniWeekday">${w}</div>`);
+
+    const firstOffset=(monthStart.getDay()+6)%7;
+    const gridStart=new Date(displayYear,monthIndex,1-firstOffset);
+    const lastOffset=6-((monthEnd.getDay()+6)%7);
+    const gridEnd=new Date(displayYear,monthIndex,monthEnd.getDate()+lastOffset);
+
+    for(let d=new Date(gridStart); d<=gridEnd; d.setDate(d.getDate()+1)){
+      const cur=new Date(d);
+      const iso=localISO(cur);
+      const inMonth=cur.getMonth()===monthIndex && cur.getFullYear()===displayYear;
+      const dow=(cur.getDay()+6)%7;
+      const weekend=dow>=5;
+      const isToday=iso===today;
+      const dayShifts=monthShifts.filter(s=>s.date===iso);
+
+      html+=`<div class="miniDay ${weekend?'weekend ':''}${isToday?'today ':''}${!inMonth?'othermonth':''}${inMonth?' clickable':''}" ${inMonth?`onclick="openDayModal('${iso}')"`:''}>
+        <div class="daynum">${cur.getDate()}${isToday?' •':''}</div>`;
+
+      if(inMonth){
+        dayShifts.slice(0,2).forEach(s=>{
+          const isHoliday=(s.role||'').toLowerCase().includes('holiday');
+          let label;
+          if(isHoliday){
+            label='Holiday';
+          }else if(s.start){
+            label=[s.start, s.role || s.location].filter(Boolean).join(' ');
+          }else{
+            label=[s.role, s.notes].filter(Boolean).join(' - ');
+          }
+          html+=`<div class="miniShift ${isHoliday?'holiday':''}" title="${escapeHtml([s.start,s.end,s.role,s.location,s.notes].filter(Boolean).join(' • '))}">${escapeHtml(label || 'Shift')}</div>`;
+        });
+        if(dayShifts.length>2){
+          html+=`<div class="moreShifts">+${dayShifts.length-2} more</div>`;
+        }
+      }
+
+      html+='</div>';
+    }
+
+    html+='</div></section>';
+  }
+
+  yearViewEl.innerHTML=html;
+}
+
+document.getElementById('csvFile').addEventListener('change',e=>{
+  const file=e.target.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=()=>{input.value=reader.result;parseText();};
+  reader.readAsText(file);
+});
+
+function loadExample(){
+  input.value=`Date, Start, End, Role, Location, Notes
+2026-09-02, , , Carer, , 11.5 hours - Std as Carer
+2026-09-05, , , Carer, , 11.5 hours - Std as Carer
+2026-09-06, , , Carer, , 11.5 hours - Std as Carer
+2026-09-08, , , Carer, , 11.5 hours - Std as Carer
+2026-09-09, , , Carer, , 11.5 hours - Std as Carer
+2026-09-11, , , Carer, , 11.5 hours - Std as Carer
+2026-09-14, , , Holiday, , Authorised hours: 12
+2026-09-15, , , Holiday, , Authorised hours: 12
+2026-09-16, , , Holiday, , Authorised hours: 12
+2026-09-21, , , Holiday, , Authorised hours: 12
+2026-09-22, , , Holiday, , Authorised hours: 12
+2026-09-23, , , Holiday, , Authorised hours: 12
+2026-09-30, 07:00, 19:00, Carer (Carers Days), Millbridge Care Home,
+2026-10-03, 07:00, 19:00, Carer (Carers Days), Millbridge Care Home,
+2026-10-04, 07:00, 19:00, Carer (Carers Days), Millbridge Care Home,
+2026-10-06, 07:00, 19:00, Carer (Carers Days), Millbridge Care Home,
+2026-10-08, 07:00, 19:00, Carer (Carers Days), Millbridge Care Home,
+2026-10-09, 07:00, 19:00, Carer (Carers Days), Millbridge Care Home,
+2026-10-14, 07:00, 19:00, Carer (Carers Days), Millbridge Care Home,
+2026-10-17, , , Holiday, , Authorised hours: 11
+2026-10-18, , , Holiday, , Authorised hours: 11
+2026-10-20, 07:00, 19:00, Carer (Carers Days), Millbridge Care Home,
+2026-10-22, 07:00, 19:00, Carer (Carers Days), Millbridge Care Home,
+2026-10-23, 07:00, 19:00, Carer (Carers Days), Millbridge Care Home,`;
+  parseText();
+}
+
+function clearAll(){
+  if(!confirm('Clear your saved rota?')) return;
+  input.value=''; shifts=[]; localStorage.removeItem('yearlyRotaText'); render();
+}
+
+function csvCell(v){
+  v=String(v||'');
+  return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;
+}
+function downloadCSV(){
+  if(!shifts.length){alert('No rota to export yet.');return;}
+  const rows=[['Date','Start','End','Role','Location','Notes']];
+  shifts.forEach(s=>rows.push([s.date,s.start,s.end,s.role,s.location,s.notes]));
+  const csv=rows.map(r=>r.map(csvCell).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='my-yearly-rota.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+const saved=localStorage.getItem('yearlyRotaText');
+if(saved){input.value=saved;parseText()} else {
+  input.value=`Date, Start, End, Role, Location, Notes
+2026-09-02, , , Carer, , 11.5 hours - Std as Carer
+2026-09-05, , , Carer, , 11.5 hours - Std as Carer
+2026-09-06, , , Carer, , 11.5 hours - Std as Carer
+2026-09-08, , , Carer, , 11.5 hours - Std as Carer
+2026-09-09, , , Carer, , 11.5 hours - Std as Carer
+2026-09-11, , , Carer, , 11.5 hours - Std as Carer
+2026-09-14, , , Holiday, , Authorised hours: 12
+2026-09-15, , , Holiday, , Authorised hours: 12
+2026-09-16, , , Holiday, , Authorised hours: 12
+2026-09-21, , , Holiday, , Authorised hours: 12
+2026-09-22, , , Holiday, , Authorised hours: 12
+2026-09-23, , , Holiday, , Authorised hours: 12
+2026-09-30, 07:00, 19:00, Carer (Carers Days), Millbridge Care Home,
+2026-10-03, 07:00, 19:00, Carer (Carers Days), Millbridge Care Home,
+2026-10-04, 07:00, 19:00, Carer (Carers Days), Millbridge Care Home,
+2026-10-06, 07:00, 19:00, Carer (Carers Days), Millbridge Care Home,
+2026-10-08, 07:00, 19:00, Carer (Carers Days), Millbridge Care Home,
+2026-10-09, 07:00, 19:00, Carer (Carers Days), Millbridge Care Home,
+2026-10-14, 07:00, 19:00, Carer (Carers Days), Millbridge Care Home,
+2026-10-17, , , Holiday, , Authorised hours: 11
+2026-10-18, , , Holiday, , Authorised hours: 11
+2026-10-20, 07:00, 19:00, Carer (Carers Days), Millbridge Care Home,
+2026-10-22, 07:00, 19:00, Carer (Carers Days), Millbridge Care Home,
+2026-10-23, 07:00, 19:00, Carer (Carers Days), Millbridge Care Home,`;
+  parseText();
+}
+</script>
+
+<div id="dayModal" class="dayModal" onclick="if(event.target===this) closeDayModal()">
+  <div class="dayModalCard">
+    <div class="dayModalHead">
+      <h3 id="dayModalTitle">Shift details</h3>
+      <button class="dayModalClose" onclick="closeDayModal()" aria-label="Close">×</button>
+    </div>
+    <div id="dayModalBody" class="dayModalBody"></div>
+  </div>
+</div>
+
+
+<div id="installHint" style="
+  display:none;position:fixed;left:12px;right:12px;bottom:12px;z-index:9998;
+  background:#172033;color:white;padding:12px 14px;border-radius:14px;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);font-size:14px">
+  <strong>Install Rota Final on iPhone:</strong>
+  open this page in Safari, tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>.
+  <button onclick="document.getElementById('installHint').style.display='none'"
+    style="float:right;margin-left:10px;background:white;color:#172033;border:0;
+    border-radius:8px;padding:5px 8px;font-weight:700">OK</button>
+</div>
+
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
+}
+(function(){
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const standalone = window.navigator.standalone === true ||
+    window.matchMedia('(display-mode: standalone)').matches;
+  if (isIOS && !standalone) {
+    setTimeout(() => {
+      const hint = document.getElementById('installHint');
+      if (hint) hint.style.display = 'block';
+    }, 1200);
+  }
+})();
+</script>
+
+</body>
+</html>
