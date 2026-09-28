@@ -1,4 +1,4 @@
-const CACHE = 'rota-final-v1';
+const CACHE = 'rota-final-v2-gdpr';
 const ASSETS = [
   './',
   './index.html',

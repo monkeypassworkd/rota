@@ -1,39 +1,16 @@
-ROTA FINAL — WEB APP / iPHONE VERSION
+ROTA FINAL — GDPR-SAFE WEB APP
 
-This folder is ready to publish as a small website.
+This version removes the specific workplace name from the rota.
+It has been replaced with the generic label "Workplace".
 
-WHAT IT DOES
-- Works in Safari on iPhone.
-- Can be added to the iPhone Home Screen.
-- Opens like an app in standalone mode.
-- Works offline after the first successful visit.
-- Keeps the weekly cards, yearly calendar and clickable shift popups.
+For GitHub Pages:
+1. Replace your existing files with the files in this ZIP.
+2. Commit the changes.
+3. Wait 1–3 minutes for GitHub Pages to redeploy.
+4. On iPhone, reopen the site. If the old version is cached, close Safari and reopen,
+   or remove/re-add the Home Screen app.
 
-IMPORTANT
-You must put these files on a website for the iPhone web-app features to work.
-Opening index.html directly from Files will not behave like an installed web app.
-
-EASIEST FREE PUBLISHING OPTIONS
-1. Netlify Drop:
-   - Go to app.netlify.com/drop
-   - Drag this entire folder/ZIP onto the page
-   - Netlify gives you a web link
-   - Send that link to the iPhone user
-
-2. GitHub Pages:
-   - Create a repository
-   - Upload all files in this folder
-   - Enable GitHub Pages for the repository
-   - Send the Pages link
-
-ON THE iPHONE
-1. Open the web link in Safari.
-2. Tap Share.
-3. Tap Add to Home Screen.
-4. Tap Add.
-5. Open Rota Final from the Home Screen.
-
-FILES
+Files:
 - index.html
 - manifest.webmanifest
 - sw.js
