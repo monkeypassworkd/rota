@@ -1,18 +1,23 @@
-ROTA FINAL — GDPR-SAFE WEB APP
+ROTA FINAL — CAT ICON FIX v4
 
-This version removes the specific workplace name from the rota.
-It has been replaced with the generic label "Workplace".
+This version uses completely new icon filenames to bypass iPhone/Safari caching.
 
-For GitHub Pages:
-1. Replace your existing files with the files in this ZIP.
-2. Commit the changes.
-3. Wait 1–3 minutes for GitHub Pages to redeploy.
-4. On iPhone, reopen the site. If the old version is cached, close Safari and reopen,
-   or remove/re-add the Home Screen app.
-
-Files:
+UPLOAD ALL OF THESE FILES TO GITHUB:
 - index.html
 - manifest.webmanifest
 - sw.js
-- icon-192.png
-- icon-512.png
+- cat-touch-v4.png
+- cat-icon-192-v4.png
+- cat-icon-512-v4.png
+- cat-favicon-v4.png
+
+IMPORTANT ON IPHONE
+1. Delete the old Rota Final icon from the iPhone Home Screen.
+2. Open the GitHub Pages website in Safari (not Chrome).
+3. Refresh the page once.
+4. Tap Share.
+5. Tap Add to Home Screen.
+6. Confirm the cat icon is shown in the Add to Home Screen preview.
+7. Tap Add.
+
+Existing Home Screen web-app icons often do NOT update automatically on iPhone.
